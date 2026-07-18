@@ -87,8 +87,8 @@ const Consultation = () => {
               className="space-y-6"
             >
               {[
-                { icon: MessageCircle, title: "WhatsApp Consultation", desc: "Chat directly with Dr. Sharma's team for quick queries and appointment booking.", action: "Chat on WhatsApp", href: "https://wa.me/91XXXXXXXXXX" },
-                { icon: Phone, title: "Call Us", desc: "Speak with our team directly for urgent consultations or inquiries.", action: "Call Now", href: "tel:+91XXXXXXXXXX" },
+                { icon: MessageCircle, title: "WhatsApp Consultation", desc: "Chat directly with Dr. Sharma's team for quick queries and appointment booking.", action: "Chat on WhatsApp", href: "https://wa.me/919627986822" },
+                { icon: Phone, title: "Call Us", desc: "Speak with our team directly for urgent consultations or inquiries.", action: "Call Now", href: "tel:+919627986822" },
                 { icon: Video, title: "Online Consultation", desc: "Get expert Ayurvedic advice from the comfort of your home via video call.", action: "Book Online", href: "/consultation" },
               ].map((item) => (
                 <Card key={item.title} className="bg-background">
