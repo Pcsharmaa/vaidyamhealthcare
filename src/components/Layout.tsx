@@ -4,11 +4,11 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 import defaultHeroImage from "@/assets/hero-ayurveda.jpg";
-import aboutBanner from "@/assets/pagebanners/About Banner.png";
-import servicesBanner from "@/assets/pagebanners/Services Banner.png";
-import consultationBanner from "@/assets/pagebanners/Book Consultation Banner.png";
-import blogBanner from "@/assets/pagebanners/Blog Banner.png";
-import contactBanner from "@/assets/pagebanners/Contact Banner.png";
+import aboutBanner from "@/assets/pagebanners/fordesktop/About Banner.png";
+import servicesBanner from "@/assets/pagebanners/fordesktop/Services Banner.png";
+import consultationBanner from "@/assets/pagebanners/fordesktop/Book Consultation Banner.png";
+import blogBanner from "@/assets/pagebanners/fordesktop/Blog Banner.png";
+import contactBanner from "@/assets/pagebanners/fordesktop/Contact Banner.png";
 
 const pageTitles: Record<string, string> = {
   "/": "Welcome to Vaidyam Hospital & HealthCare",
@@ -27,7 +27,7 @@ const pageBanners: Record<string, string> = {
   "/contact": contactBanner,
 };
 
-const mobileBannerModules = import.meta.glob("../assets/pagebanners/* Mobile.png", {
+const mobileBannerModules = import.meta.glob("../assets/pagebanners/formobile/*.{jpg,jpeg,png,webp}", {
   eager: true,
   import: "default",
 }) as Record<string, string>;
@@ -35,7 +35,7 @@ const mobileBannerModules = import.meta.glob("../assets/pagebanners/* Mobile.png
 const mobileBannerByName = Object.fromEntries(
   Object.entries(mobileBannerModules).map(([path, src]) => {
     const fileName = path.split("/").pop() ?? "";
-    const key = fileName.replace(" Mobile.png", "");
+    const key = fileName.replace(/\.(jpg|jpeg|png|webp)$/i, "");
     return [key, src];
   })
 ) as Record<string, string>;

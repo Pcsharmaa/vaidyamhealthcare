@@ -24,7 +24,7 @@ const mobileBannerMap = Object.fromEntries(
       import: "default",
     })
   ).map(([path, src]) => {
-    const name = path.split("/").pop()?.replace(" Mobile", "") ?? "";
+    const name = path.split("/").pop()?.replace(/\.(jpg|jpeg|png|webp)$/i, "") ?? "";
     return [name, src];
   })
 ) as Record<string, string>;
