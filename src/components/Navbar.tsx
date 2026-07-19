@@ -42,9 +42,6 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Button asChild>
-            <Link to="/consultation">Book Appointment</Link>
-          </Button>
         </div>
 
         {/* Mobile toggle */}

@@ -1,14 +1,21 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/SectionHeading";
-import heroImage from "@/assets/hero-ayurveda.jpg";
-import doctorImage from "@/assets/doctor-profile.jpg";
+
+import doctorImage from "@/assets/doctorimages/Doctor Portrait 1.png";
 import {
   Stethoscope, Leaf, HeartPulse, Apple, Brain, Weight,
   Sparkles, Bone, Activity, Star, ArrowRight, Quote,
 } from "lucide-react";
+const bannerImages = Object.values(
+  import.meta.glob("@/assets/banners/*.{jpg,jpeg,png,webp}", {
+    eager: true,
+    import: "default",
+  })
+) as string[];
 
 const services = [
   { icon: Stethoscope, title: "Ayurvedic Consultation", desc: "Comprehensive health assessment based on Ayurvedic principles" },
@@ -34,83 +41,64 @@ const fadeUp = {
 };
 
 const Index = () => {
+  const [heroImage, setHeroImage] = useState<string>(bannerImages[0]);
+
+  useEffect(() => {
+    if (bannerImages.length === 0) return;
+
+    const changeImage = () => {
+      setHeroImage((current) => {
+        const currentIndex = bannerImages.indexOf(current);
+        const nextIndex = (currentIndex + 1) % bannerImages.length;
+        return bannerImages[nextIndex];
+      });
+    };
+
+    const interval = window.setInterval(changeImage, 5000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   return (
     <>
       {/* SEO */}
       <title>Vaidyam Clinic</title>
       <meta name="description" content="Dr. Harsh Vardhan Sharma (BAMS) offers holistic Ayurvedic treatments including Panchakarma, herbal medicine, and natural healing in Uttarakhand, India." />
 
-      {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[85vh] overflow-hidden">
+        {/* Background Image */}
         <div className="absolute inset-0">
-          <img src={heroImage} alt="Ayurvedic herbs and healing oils" className="w-full h-full object-cover" />
+          <img
+            src={heroImage}
+            alt="Ayurvedic herbs and healing oils"
+            className="w-full h-full object-cover transition-opacity duration-700"
+          />
           <div className="absolute inset-0 bg-black/20" />
         </div>
-        <div className="container relative z-10 mx-auto px-4 py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl"
-          >
-            <span className="text-accent font-medium text-sm uppercase tracking-widest">
-              Ancient Wisdom, Modern Care
-            </span>
-            <h1 className="font-heading text-4xl md:text-6xl font-bold text-primary-foreground mt-4 leading-tight">
-              Holistic Healing Through Ayurveda
-            </h1>
-            <p className="mt-6 text-lg text-primary-foreground/80 leading-relaxed max-w-xl">
-              Experience the transformative power of Ayurveda with Dr. Harsh Vardhan Sharma. Restore balance, rejuvenate your body, and embrace natural wellness.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button size="lg" variant="secondary" asChild>
-                <Link to="/consultation">Book Appointment <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary/30 text-primary" asChild>
-                <Link to="/services">Our Services</Link>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* Doctor Intro */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <img
-                src={doctorImage}
-                alt="Dr. Harsh Vardhan Sharma, Ayurvedic Physician"
-                className="rounded-2xl shadow-elevated w-full max-w-md mx-auto"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="text-accent font-medium text-sm uppercase tracking-widest">Meet Your Doctor</span>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mt-2">
-                Dr. Harsh Vardhan Sharma
-              </h2>
-              <p className="text-muted-foreground mt-1 font-medium">BAMS — Ayurvedic Physician</p>
-              <p className="mt-6 text-muted-foreground leading-relaxed">
-                With years of dedicated practice in Ayurvedic medicine, Dr. Harsh Vardhan Sharma brings a patient-centered, holistic approach to healing. Rooted in the ancient traditions of Ayurveda and backed by modern understanding, he provides personalized treatment plans that address the root cause of ailments.
-              </p>
-              <Button className="mt-6" asChild>
-                <Link to="/about">Learn More About Dr. Sharma</Link>
-              </Button>
-            </motion.div>
-          </div>
+        {/* Buttons */}
+        <div className="absolute bottom-2 left-6 z-20 flex flex-wrap gap-4">
+          <Button size="lg"
+           variant="outline" 
+           className="border-white text-black"
+           asChild
+          >
+            <Link to="/consultation">
+              Book Appointment
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+
+          <Button
+            size="lg"
+            variant="outline"
+            className="border-white text-black"
+            asChild
+          >
+            <Link to="/services">Our Services</Link>
+          </Button>
         </div>
       </section>
+          
 
       {/* Services Highlight */}
       <section className="py-20 bg-secondary/50">
@@ -186,26 +174,97 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-hero-gradient">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-primary-foreground">
-              Begin Your Healing Journey Today
-            </h2>
-            <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">
-              Take the first step towards natural wellness. Book a consultation with Dr. Harsh Vardhan Sharma.
-            </p>
-            <Button size="lg" variant="secondary" className="mt-8" asChild>
-              <Link to="/consultation">Book Free Consultation <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </motion.div>
+
+      <section className="py-16 bg-white">
+  <div className="container mx-auto px-4">
+    <div className="grid lg:grid-cols-[220px_1fr] gap-10 items-center">
+
+      {/* Image */}
+      <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        className="flex justify-center"
+      >
+        <img
+          src={doctorImage}
+          alt="Dr. Harsh Vardhan Sharma"
+          className="w-44 h-44 rounded-full object-cover border-4 border-primary/10 shadow-xl"
+        />
+      </motion.div>
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, x: 30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+      >
+        <span className="text-primary uppercase tracking-[0.2em] text-sm font-semibold">
+          Meet Your Doctor
+        </span>
+
+        <h2 className="mt-2 text-3xl font-bold">
+          Dr. Harsh Vardhan Sharma
+        </h2>
+
+        <p className="text-primary font-medium mt-1">
+          BAMS • Ayurvedic Physician
+        </p>
+
+        <p className="mt-4 text-muted-foreground max-w-2xl">
+          Helping patients achieve long-term wellness through authentic Ayurveda,
+          Panchakarma therapies, herbal medicine, and personalized treatment
+          plans.
+        </p>
+
+        <div className="flex flex-wrap gap-3 mt-5">
+          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+            🌿 Ayurveda
+          </span>
+          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+            🩺 Panchakarma
+          </span>
+          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+            💚 Holistic Care
+          </span>
         </div>
-      </section>
+
+        <Button className="mt-6" asChild>
+          <Link to="/about">
+            View Full Profile
+          </Link>
+        </Button>
+      </motion.div>
+
+    </div>
+  </div>
+</section>
+
+      <section className="py-20 bg-white border-t border-gray-100">
+  <div className="container mx-auto px-4 text-center">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
+        Begin Your Healing Journey Today
+      </h2>
+
+      <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+        Take the first step towards natural wellness. Book a consultation with
+        Dr. Harsh Vardhan Sharma.
+      </p>
+
+      <Button size="lg" variant="secondary" className="mt-8" asChild>
+        <Link to="/consultation">
+          Book Free Consultation
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </motion.div>
+  </div>
+</section>
     </>
   );
 };

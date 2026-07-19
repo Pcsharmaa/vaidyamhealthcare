@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import heroImage from "@/assets/hero-ayurveda.jpg";
+import consultationBanner from "@/assets/pagebanners/Consultation Banner.png";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MessageCircle, Phone, Video } from "lucide-react";

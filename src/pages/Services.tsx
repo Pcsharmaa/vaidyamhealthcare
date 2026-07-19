@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import SectionHeading from "@/components/SectionHeading";
+import servicesBanner from "@/assets/pagebanners/Services Banner.png";
 import {
   Stethoscope, Leaf, HeartPulse, Apple, Brain, Weight,
   Sparkles, Bone, Activity, ArrowRight, Clock, CheckCircle,
@@ -511,7 +512,7 @@ const Services = () => {
           <SectionHeading 
             title="Our Core Services"
             subtitle="Comprehensive Ayurvedic treatments tailored to your needs"
-            centered
+            center
           />
 
           {/* Category Filter */}
@@ -675,7 +676,7 @@ const Services = () => {
           <SectionHeading 
             title="Specialized Services"
             subtitle="Additional treatments for comprehensive care"
-            centered
+            center
           />
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

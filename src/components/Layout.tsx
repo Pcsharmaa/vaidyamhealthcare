@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
-import heroImage from "@/assets/hero-ayurveda.jpg";
+import defaultHeroImage from "@/assets/hero-ayurveda.jpg";
+import aboutBanner from "@/assets/pagebanners/About Banner.png";
+import servicesBanner from "@/assets/pagebanners/Services Banner.png";
+import consultationBanner from "@/assets/pagebanners/Book Consultation Banner.png";
+import blogBanner from "@/assets/pagebanners/Blog Banner.png";
+import contactBanner from "@/assets/pagebanners/Contact Banner.png";
 
 const pageTitles: Record<string, string> = {
   "/": "Welcome to Vaidyam Hospital & HealthCare",
@@ -13,10 +19,23 @@ const pageTitles: Record<string, string> = {
   "/contact": "Contact",
 };
 
+const pageBanners: Record<string, string> = {
+  "/about": aboutBanner,
+  "/services": servicesBanner,
+  "/consultation": consultationBanner,
+  "/blog": blogBanner,
+  "/contact": contactBanner,
+};
+
 const Layout = () => {
   const location = useLocation();
   const bannerTitle = pageTitles[location.pathname] ?? "Ayurveda Wellness";
+  const heroImage = pageBanners[location.pathname] ?? defaultHeroImage;
   const showBanner = location.pathname !== "/";
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -28,16 +47,6 @@ const Layout = () => {
             alt={`${bannerTitle} banner`}
             className="absolute inset-0 w-full h-full object-cover"
           />
-          <div className="container relative z-10 mx-auto flex h-full items-center px-4">
-            <div className="text-white shadow-black/60">
-              {/* <p className="text-sm uppercase tracking-[0.3em] text-white/90">
-                Ancient Ayurveda, modern care
-              </p> */}
-              <h1 className="mt-3 text-3xl md:text-4xl font-heading font-bold">
-                {bannerTitle}
-              </h1>
-            </div>
-          </div>
         </header>
       )}
       <main className="flex-1">

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/SectionHeading";
-import doctorImage from "@/assets/doctor-profile.jpg";
+import aboutBanner from "@/assets/pagebanners/About Banner.png";
 import { Heart, Eye, Target, BookOpen } from "lucide-react";
+import doctorImage from "@/assets/doctorimages/Doctor Portrait 2.png";
 
 const values = [
   { icon: Heart, title: "Compassionate Care", desc: "Every patient is treated with empathy, respect, and individualized attention." },
