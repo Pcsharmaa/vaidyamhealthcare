@@ -27,10 +27,34 @@ const pageBanners: Record<string, string> = {
   "/contact": contactBanner,
 };
 
+const mobileBannerModules = import.meta.glob("../assets/pagebanners/* Mobile.png", {
+  eager: true,
+  import: "default",
+}) as Record<string, string>;
+
+const mobileBannerByName = Object.fromEntries(
+  Object.entries(mobileBannerModules).map(([path, src]) => {
+    const fileName = path.split("/").pop() ?? "";
+    const key = fileName.replace(" Mobile.png", "");
+    return [key, src];
+  })
+) as Record<string, string>;
+
+const routeBannerNames: Record<string, string> = {
+  "/about": "About Banner",
+  "/services": "Services Banner",
+  "/consultation": "Book Consultation Banner",
+  "/blog": "Blog Banner",
+  "/contact": "Contact Banner",
+};
+
 const Layout = () => {
   const location = useLocation();
   const bannerTitle = pageTitles[location.pathname] ?? "Ayurveda Wellness";
   const heroImage = pageBanners[location.pathname] ?? defaultHeroImage;
+  const mobileBanner = routeBannerNames[location.pathname]
+    ? mobileBannerByName[routeBannerNames[location.pathname]]
+    : "";
   const showBanner = location.pathname !== "/";
 
   useEffect(() => {
@@ -42,11 +66,17 @@ const Layout = () => {
       <Navbar />
       {showBanner && (
         <header className="relative h-[320px] md:h-[420px] overflow-hidden">
-          <img
-            src={heroImage}
-            alt={`${bannerTitle} banner`}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <picture>
+            <source
+              media="(max-width: 640px)"
+              srcSet={mobileBanner || heroImage}
+            />
+            <img
+              src={heroImage}
+              alt={`${bannerTitle} banner`}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </picture>
         </header>
       )}
       <main className="flex-1">

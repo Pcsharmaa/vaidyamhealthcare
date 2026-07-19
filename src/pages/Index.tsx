@@ -10,12 +10,24 @@ import {
   Stethoscope, Leaf, HeartPulse, Apple, Brain, Weight,
   Sparkles, Bone, Activity, Star, ArrowRight, Quote,
 } from "lucide-react";
-const bannerImages = Object.values(
-  import.meta.glob("@/assets/banners/*.{jpg,jpeg,png,webp}", {
+const bannerImages = Object.entries(
+  import.meta.glob("@/assets/homebanners/fordesktop/*.{jpg,jpeg,png,webp}", {
     eager: true,
     import: "default",
   })
-) as string[];
+) as [string, string][];
+
+const mobileBannerMap = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("@/assets/homebanners/formobile/*.{jpg,jpeg,png,webp}", {
+      eager: true,
+      import: "default",
+    })
+  ).map(([path, src]) => {
+    const name = path.split("/").pop()?.replace(" Mobile", "") ?? "";
+    return [name, src];
+  })
+) as Record<string, string>;
 
 const services = [
   { icon: Stethoscope, title: "Ayurvedic Consultation", desc: "Comprehensive health assessment based on Ayurvedic principles" },
@@ -41,22 +53,21 @@ const fadeUp = {
 };
 
 const Index = () => {
-  const [heroImage, setHeroImage] = useState<string>(bannerImages[0]);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     if (bannerImages.length === 0) return;
 
-    const changeImage = () => {
-      setHeroImage((current) => {
-        const currentIndex = bannerImages.indexOf(current);
-        const nextIndex = (currentIndex + 1) % bannerImages.length;
-        return bannerImages[nextIndex];
-      });
-    };
+    const interval = window.setInterval(() => {
+      setHeroIndex((current) => (current + 1) % bannerImages.length);
+    }, 5000);
 
-    const interval = window.setInterval(changeImage, 5000);
     return () => window.clearInterval(interval);
   }, []);
+
+  const [heroPath, heroImage] = bannerImages[heroIndex] ?? ["", ""];
+  const heroName = heroPath.split("/").pop()?.replace(/\.(jpg|jpeg|png|webp)$/i, "") ?? "";
+  const mobileHeroImage = mobileBannerMap[heroName] ?? heroImage;
 
   return (
     <>
@@ -66,12 +77,15 @@ const Index = () => {
 
       <section className="relative min-h-[85vh] overflow-hidden">
         {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Ayurvedic herbs and healing oils"
-            className="w-full h-full object-cover transition-opacity duration-700"
-          />
+        <div className="absolute inset-0 bg-black">
+          <picture>
+            <source media="(max-width: 640px)" srcSet={mobileHeroImage} />
+            <img
+              src={heroImage}
+              alt="Ayurvedic herbs and healing oils"
+              className="w-full h-full object-cover object-left md:object-center transition-opacity duration-700"
+            />
+          </picture>
           <div className="absolute inset-0 bg-black/20" />
         </div>
 
