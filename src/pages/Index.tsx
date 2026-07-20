@@ -57,35 +57,30 @@ const Index = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [imageKey, setImageKey] = useState(0);
+  const [currentHeroImage, setCurrentHeroImage] = useState("");
+  const [pendingHeroImage, setPendingHeroImage] = useState("");
 
   useEffect(() => {
     if (bannerImages.length === 0) return;
 
-    // Initial check
     const checkMobile = () => {
       const mobile = window.innerWidth <= 640;
-      console.log("Window width:", window.innerWidth, "Is mobile:", mobile);
       setIsMobile(mobile);
-      // Force image refresh when device type changes
       setImageKey(prev => prev + 1);
     };
 
     checkMobile();
 
-    // Add resize listener with debounce
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        checkMobile();
-      }, 200);
+      resizeTimeout = setTimeout(checkMobile, 200);
     };
 
     window.addEventListener("resize", handleResize);
 
     const interval = window.setInterval(() => {
       setHeroIndex((current) => (current + 1) % bannerImages.length);
-      // Force image refresh when changing slides
       setImageKey(prev => prev + 1);
     }, 5000);
 
@@ -98,25 +93,39 @@ const Index = () => {
 
   // Get the current banner image
   const [heroPath, heroImage] = bannerImages[heroIndex] ?? ["", ""];
-  
-  // Extract filename without extension
   const heroFileName = heroPath.split("/").pop() || "";
-  const heroName = heroFileName.replace(/\.[^.]+$/, ""); // Remove extension
-  
-  // Get mobile version - if not found, use desktop version
+  const heroName = heroFileName.replace(/\.[^.]+$/, "");
   const mobileHeroImage = mobileBannerMap[heroName] || heroImage;
-  
-  // Determine which image to display based on device
   const selectedImage = isMobile ? mobileHeroImage : heroImage;
-  
-  // Add cache-busting parameter to force reload
-  const displayedImage = `${selectedImage}?v=${imageKey}`;
+  const nextHeroImage = `${selectedImage}?v=${imageKey}`;
 
-  // Debug logging
-  console.log("Is mobile:", isMobile);
-  console.log("Selected image type:", isMobile ? "MOBILE" : "DESKTOP");
-  console.log("Image URL:", displayedImage);
-  console.log("Hero name:", heroName);
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    if (!currentHeroImage) {
+      setCurrentHeroImage(nextHeroImage);
+      return;
+    }
+
+    if (currentHeroImage !== nextHeroImage) {
+      setPendingHeroImage(nextHeroImage);
+      const img = new Image();
+      img.src = nextHeroImage;
+      img.onload = () => {
+        setCurrentHeroImage(nextHeroImage);
+        setPendingHeroImage("");
+      };
+      img.onerror = () => {
+        console.error("Failed to preload hero image:", nextHeroImage);
+        setPendingHeroImage("");
+      };
+
+      return () => {
+        img.onload = null;
+        img.onerror = null;
+      };
+    }
+  }, [currentHeroImage, imageKey, selectedImage, nextHeroImage]);
 
   return (
     <>
@@ -127,25 +136,12 @@ const Index = () => {
       <section className="relative min-h-[85vh] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 bg-black">
-          {displayedImage && (
+          {currentHeroImage && (
             <img
-              src={displayedImage}
+              src={currentHeroImage}
               alt="Ayurvedic herbs and healing oils"
               className="w-full h-full object-cover object-left md:object-center transition-opacity duration-700"
-              key={displayedImage}
-              onLoad={() => {
-                console.log("✅ Image loaded successfully:", displayedImage);
-              }}
-              onError={(e) => {
-                console.error("❌ Failed to load image:", displayedImage);
-                // Fallback to desktop version if mobile fails
-                if (isMobile) {
-                  const target = e.target as HTMLImageElement;
-                  const fallbackImage = `${heroImage}?v=${imageKey}`;
-                  target.src = fallbackImage;
-                  console.log("🔄 Falling back to desktop image:", fallbackImage);
-                }
-              }}
+              key={currentHeroImage}
             />
           )}
           <div className="absolute inset-0 bg-black/20" />
