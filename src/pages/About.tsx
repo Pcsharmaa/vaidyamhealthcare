@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import SectionHeading from "@/components/SectionHeading";
-import aboutBanner from "@/assets/pagebanners/About Banner.png";
+import aboutBanner from "@/assets/pagebanners/fordesktop/About Banner.png";
 import { Heart, Eye, Target, BookOpen } from "lucide-react";
 import doctorImage from "@/assets/doctorimages/Doctor Portrait 2.png";
 

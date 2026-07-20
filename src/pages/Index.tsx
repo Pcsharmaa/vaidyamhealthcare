@@ -10,6 +10,7 @@ import {
   Stethoscope, Leaf, HeartPulse, Apple, Brain, Weight,
   Sparkles, Bone, Activity, Star, ArrowRight, Quote,
 } from "lucide-react";
+
 const bannerImages = Object.entries(
   import.meta.glob("@/assets/homebanners/fordesktop/*.{jpg,jpeg,png,webp}", {
     eager: true,
@@ -54,20 +55,68 @@ const fadeUp = {
 
 const Index = () => {
   const [heroIndex, setHeroIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [imageKey, setImageKey] = useState(0);
 
   useEffect(() => {
     if (bannerImages.length === 0) return;
 
+    // Initial check
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 640;
+      console.log("Window width:", window.innerWidth, "Is mobile:", mobile);
+      setIsMobile(mobile);
+      // Force image refresh when device type changes
+      setImageKey(prev => prev + 1);
+    };
+
+    checkMobile();
+
+    // Add resize listener with debounce
+    let resizeTimeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        checkMobile();
+      }, 200);
+    };
+
+    window.addEventListener("resize", handleResize);
+
     const interval = window.setInterval(() => {
       setHeroIndex((current) => (current + 1) % bannerImages.length);
+      // Force image refresh when changing slides
+      setImageKey(prev => prev + 1);
     }, 5000);
 
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, []);
 
+  // Get the current banner image
   const [heroPath, heroImage] = bannerImages[heroIndex] ?? ["", ""];
-  const heroName = heroPath.split("/").pop()?.replace(/\.(jpg|jpeg|png|webp)$/i, "") ?? "";
-  const mobileHeroImage = mobileBannerMap[heroName] ?? heroImage;
+  
+  // Extract filename without extension
+  const heroFileName = heroPath.split("/").pop() || "";
+  const heroName = heroFileName.replace(/\.[^.]+$/, ""); // Remove extension
+  
+  // Get mobile version - if not found, use desktop version
+  const mobileHeroImage = mobileBannerMap[heroName] || heroImage;
+  
+  // Determine which image to display based on device
+  const selectedImage = isMobile ? mobileHeroImage : heroImage;
+  
+  // Add cache-busting parameter to force reload
+  const displayedImage = `${selectedImage}?v=${imageKey}`;
+
+  // Debug logging
+  console.log("Is mobile:", isMobile);
+  console.log("Selected image type:", isMobile ? "MOBILE" : "DESKTOP");
+  console.log("Image URL:", displayedImage);
+  console.log("Hero name:", heroName);
 
   return (
     <>
@@ -78,41 +127,54 @@ const Index = () => {
       <section className="relative min-h-[85vh] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 bg-black">
-          <picture>
-            <source media="(max-width: 640px)" srcSet={mobileHeroImage} />
+          {displayedImage && (
             <img
-              src={heroImage}
+              src={displayedImage}
               alt="Ayurvedic herbs and healing oils"
               className="w-full h-full object-cover object-left md:object-center transition-opacity duration-700"
+              key={displayedImage}
+              onLoad={() => {
+                console.log("✅ Image loaded successfully:", displayedImage);
+              }}
+              onError={(e) => {
+                console.error("❌ Failed to load image:", displayedImage);
+                // Fallback to desktop version if mobile fails
+                if (isMobile) {
+                  const target = e.target as HTMLImageElement;
+                  const fallbackImage = `${heroImage}?v=${imageKey}`;
+                  target.src = fallbackImage;
+                  console.log("🔄 Falling back to desktop image:", fallbackImage);
+                }
+              }}
             />
-          </picture>
+          )}
           <div className="absolute inset-0 bg-black/20" />
         </div>
 
         {/* Buttons */}
-        <div className="absolute bottom-2 left-6 z-20 flex flex-wrap gap-4">
-          <Button size="lg"
-           variant="outline" 
-           className="border-white text-black"
-           asChild
-          >
-            <Link to="/consultation">
-              Book Appointment
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+       <div className="absolute bottom-2 left-6 z-20 flex flex-wrap gap-2 sm:gap-4">
+  <Button
+    size="default"
+    className="border-white text-black text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5"
+    variant="outline"
+    asChild
+  >
+    <Link to="/consultation">
+      Book Appointment
+      <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+    </Link>
+  </Button>
 
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-white text-black"
-            asChild
-          >
-            <Link to="/services">Our Services</Link>
-          </Button>
-        </div>
+  <Button
+    size="default"
+    className="border-white text-black text-xs sm:text-sm md:text-base px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5"
+    variant="outline"
+    asChild
+  >
+    <Link to="/services">Our Services</Link>
+  </Button>
+</div>
       </section>
-          
 
       {/* Services Highlight */}
       <section className="py-20 bg-secondary/50">
@@ -188,97 +250,96 @@ const Index = () => {
         </div>
       </section>
 
-
+      {/* Doctor Profile */}
       <section className="py-16 bg-white">
-  <div className="container mx-auto px-4">
-    <div className="grid lg:grid-cols-[220px_1fr] gap-10 items-center">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-[220px_1fr] gap-10 items-center">
+            {/* Image */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <img
+                src={doctorImage}
+                alt="Dr. Harsh Vardhan Sharma"
+                className="w-44 h-44 rounded-full object-cover border-4 border-primary/10 shadow-xl"
+              />
+            </motion.div>
 
-      {/* Image */}
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        className="flex justify-center"
-      >
-        <img
-          src={doctorImage}
-          alt="Dr. Harsh Vardhan Sharma"
-          className="w-44 h-44 rounded-full object-cover border-4 border-primary/10 shadow-xl"
-        />
-      </motion.div>
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-primary uppercase tracking-[0.2em] text-sm font-semibold">
+                Meet Your Doctor
+              </span>
 
-      {/* Content */}
-      <motion.div
-        initial={{ opacity: 0, x: 30 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-      >
-        <span className="text-primary uppercase tracking-[0.2em] text-sm font-semibold">
-          Meet Your Doctor
-        </span>
+              <h2 className="mt-2 text-3xl font-bold">
+                Dr. Harsh Vardhan Sharma
+              </h2>
 
-        <h2 className="mt-2 text-3xl font-bold">
-          Dr. Harsh Vardhan Sharma
-        </h2>
+              <p className="text-primary font-medium mt-1">
+                BAMS • Ayurvedic Physician
+              </p>
 
-        <p className="text-primary font-medium mt-1">
-          BAMS • Ayurvedic Physician
-        </p>
+              <p className="mt-4 text-muted-foreground max-w-2xl">
+                Helping patients achieve long-term wellness through authentic Ayurveda,
+                Panchakarma therapies, herbal medicine, and personalized treatment
+                plans.
+              </p>
 
-        <p className="mt-4 text-muted-foreground max-w-2xl">
-          Helping patients achieve long-term wellness through authentic Ayurveda,
-          Panchakarma therapies, herbal medicine, and personalized treatment
-          plans.
-        </p>
+              <div className="flex flex-wrap gap-3 mt-5">
+                <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+                  🌿 Ayurveda
+                </span>
+                <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+                  🩺 Panchakarma
+                </span>
+                <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
+                  💚 Holistic Care
+                </span>
+              </div>
 
-        <div className="flex flex-wrap gap-3 mt-5">
-          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
-            🌿 Ayurveda
-          </span>
-          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
-            🩺 Panchakarma
-          </span>
-          <span className="px-3 py-1 bg-primary/10 rounded-full text-sm">
-            💚 Holistic Care
-          </span>
+              <Button className="mt-6" asChild>
+                <Link to="/about">
+                  View Full Profile
+                </Link>
+              </Button>
+            </motion.div>
+          </div>
         </div>
+      </section>
 
-        <Button className="mt-6" asChild>
-          <Link to="/about">
-            View Full Profile
-          </Link>
-        </Button>
-      </motion.div>
-
-    </div>
-  </div>
-</section>
-
+      {/* CTA Section */}
       <section className="py-20 bg-white border-t border-gray-100">
-  <div className="container mx-auto px-4 text-center">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-    >
-      <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-        Begin Your Healing Journey Today
-      </h2>
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
+              Begin Your Healing Journey Today
+            </h2>
 
-      <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-        Take the first step towards natural wellness. Book a consultation with
-        Dr. Harsh Vardhan Sharma.
-      </p>
+            <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+              Take the first step towards natural wellness. Book a consultation with
+              Dr. Harsh Vardhan Sharma.
+            </p>
 
-      <Button size="lg" variant="secondary" className="mt-8" asChild>
-        <Link to="/consultation">
-          Book Free Consultation
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
-      </Button>
-    </motion.div>
-  </div>
-</section>
+            <Button size="lg" variant="secondary" className="mt-8" asChild>
+              <Link to="/consultation">
+                Book Free Consultation
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
     </>
   );
 };
