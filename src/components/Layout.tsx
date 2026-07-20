@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
-import defaultHeroImage from "@/assets/hero-ayurveda.jpg";
 import aboutBanner from "@/assets/pagebanners/fordesktop/About Banner.png";
 import servicesBanner from "@/assets/pagebanners/fordesktop/Services Banner.png";
 import consultationBanner from "@/assets/pagebanners/fordesktop/Book Consultation Banner.png";
@@ -51,7 +50,6 @@ const routeBannerNames: Record<string, string> = {
 const Layout = () => {
   const location = useLocation();
   const bannerTitle = pageTitles[location.pathname] ?? "Ayurveda Wellness";
-  const heroImage = pageBanners[location.pathname] ?? defaultHeroImage;
   const mobileBanner = routeBannerNames[location.pathname]
     ? mobileBannerByName[routeBannerNames[location.pathname]]
     : "";
